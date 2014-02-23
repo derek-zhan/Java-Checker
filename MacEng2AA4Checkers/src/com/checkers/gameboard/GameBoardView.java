@@ -19,7 +19,7 @@ import java.util.ArrayList;
 @SuppressWarnings("serial")
 public class GameBoardView extends Applet implements Runnable, MouseListener,ActionListener {
 
-	private int fps = 30;
+	private int fps = 60;
 	private int threadSleepTime = (int) 1000 / fps;
 	private Image image;
 	public URL baseContext;
@@ -38,46 +38,13 @@ public class GameBoardView extends Applet implements Runnable, MouseListener,Act
 		frame.setLocation(250, 20);
 		frame.setTitle("Checkers - 2AA4");
 		
-		MenuBar menuBar = new MenuBar();
-		Menu menu = new Menu("Settings");
-	    MenuItem menuItem;
-		
-		menuBar.add(menu);
-		
-		menuItem = new MenuItem("Save Game");
-		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_S));
-		menuItem.addActionListener(this);
-		menu.add(menuItem);
-
-		menuItem = new MenuItem("Load Game");
-		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_L));
-		menuItem.addActionListener(this);
-		menu.add(menuItem);
-		
-		menuItem = new MenuItem("New Game");
-		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_N));
-		menuItem.addActionListener(this);
-		menu.add(menuItem);
-		
-		frame.setMenuBar(menuBar);
+		frame.setMenuBar(setUpMenu());
+				
 		
 		
-		baseContext = getDocumentBase();
-		//image loading must be done in view since getImage extends Applet		
-		ArrayList<Image> imageList = new ArrayList<Image>();
-		imageList.add(getImage(baseContext, "data/Checker_Red.png"));
-		imageList.add(getImage(baseContext, "data/Checker_Black.png"));
-		imageList.add(getImage(baseContext, "data/Board.png"));
-		imageList.add(getImage(baseContext, "data/highlighted.png"));
-		imageList.add(getImage(baseContext, "data/Checker_Red_King.png"));
-		imageList.add(getImage(baseContext, "data/Checker_Black_King.png"));
-		imageList.add(getImage(baseContext, "data/BLACK.png"));
-		imageList.add(getImage(baseContext, "data/RED.png"));
-		imageList.add(getImage(baseContext, "data/BLACK_H.png"));
-		imageList.add(getImage(baseContext, "data/RED_H.png"));
-		imageList.add(getImage(baseContext, "data/ScoreBoard.png"));
+		//image loading must be done in view since getImage extends Applet	
 		
-		boardController = new GameBoardController(imageList);
+		boardController = new GameBoardController(setUpImages());
 
 	}
 
@@ -168,6 +135,48 @@ public class GameBoardView extends Applet implements Runnable, MouseListener,Act
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	private ArrayList<Image> setUpImages() {
+		baseContext = getDocumentBase();
+		ArrayList<Image> imageList = new ArrayList<Image>();
+		imageList.add(getImage(baseContext, "data/Checker_Red.png"));
+		imageList.add(getImage(baseContext, "data/Checker_Black.png"));
+		imageList.add(getImage(baseContext, "data/Board.png"));
+		imageList.add(getImage(baseContext, "data/highlighted.png"));
+		imageList.add(getImage(baseContext, "data/Checker_Red_King.png"));
+		imageList.add(getImage(baseContext, "data/Checker_Black_King.png"));
+		imageList.add(getImage(baseContext, "data/BLACK.png"));
+		imageList.add(getImage(baseContext, "data/RED.png"));
+		imageList.add(getImage(baseContext, "data/BLACK_H.png"));
+		imageList.add(getImage(baseContext, "data/RED_H.png"));
+		imageList.add(getImage(baseContext, "data/ScoreBoard.png"));
+		return imageList;
+	}
+
+	private MenuBar setUpMenu() {
+		MenuBar menuBar = new MenuBar();
+		Menu menu = new Menu("Settings");
+	    MenuItem menuItem;
+		
+		menuBar.add(menu);
+		
+		menuItem = new MenuItem("Save Game");
+		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_S));
+		menuItem.addActionListener(this);
+		menu.add(menuItem);
+
+		menuItem = new MenuItem("Load Game");
+		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_L));
+		menuItem.addActionListener(this);
+		menu.add(menuItem);
+		
+		menuItem = new MenuItem("New Game");
+		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_N));
+		menuItem.addActionListener(this);
+		menu.add(menuItem);
+		return menuBar;
+		
 	}
 
 }

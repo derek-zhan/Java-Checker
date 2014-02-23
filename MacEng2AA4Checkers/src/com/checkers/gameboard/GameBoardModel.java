@@ -15,54 +15,61 @@ public class GameBoardModel {
 	public static final int BOARDER = 0; // boarder pixels
 	// used to move up down
 	private int[][] mBoard;
-	private int[] focusedLoc = { -10, -10 }; // dummy initialization
+	// dummy initialization
+	private int[] focusedLoc = { -10, -10 };
 	private ArrayList<int[]> movesOnFocus = new ArrayList<int[]>();
 	private boolean playerBlackTurn = true;
 	private int redScore = 0;
 	private int blackScore = 0;
-	private final int[][] mInitialBoard = { 
-			{ 0, 2, 0, 2, 0, 2, 0, 2 },
-			{ 2, 0, 2, 0, 2, 0, 2, 0 }, 
-			{ 0, 2, 0, 2, 0, 2, 0, 2 },
-			{ 0, 0, 0, 0, 0, 0, 0, 0 },
-			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
-			{ 1, 0, 1, 0, 1, 0, 1, 0 },
-			{ 0, 1, 0, 1, 0, 1, 0, 1 },
-			{ 1, 0, 1, 0, 1, 0, 1, 0 } };
+	//defines how a peice is searched
+	private final int[] CHECK_LEFT_RIGHT = { -1, 1, -1, 1 };
+	private final int[] CHECK_UP_DOWN = { -1, -1, 1, 1 };
+	//default board
+	private final int[][] mInitialBoard = { { 0, 2, 0, 2, 0, 2, 0, 2 }, { 2, 0, 2, 0, 2, 0, 2, 0 }, { 0, 2, 0, 2, 0, 2, 0, 2 }, { 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, { 1, 0, 1, 0, 1, 0, 1, 0 }, { 0, 1, 0, 1, 0, 1, 0, 1 }, { 1, 0, 1, 0, 1, 0, 1, 0 } };
 
-	// used as board reference values
-	// can make this generated for different screen resolutions
+	/*-used as board reference values
+	 *-can make this generated for different screen resolutions
+	 */
 	private int[] mPositionArray = { 0, 60, 120, 180, 240, 300, 360, 420, 480 };
 
+	//sets default board and default turn
 	public GameBoardModel() {
 		this.mBoard = mInitialBoard;
 	}
 
+	//constructor with option to set turn and board
 	public GameBoardModel(int[][] board, boolean blackTurn) {
 		this.mBoard = board;
 		this.playerBlackTurn = blackTurn;
 	}
 
-	/*
-	 * STATUS: working -calculates the ID of mouse click -currently assumes
-	 * 480x480 board -this can be changed in mPositionArray -public for now this
-	 * will likely change
+	/*INPUTS:
+	 * -integer mouse Position X
+	 * -integer mouse Position Y
+	 *FUNCTION:
+	 * -generates the ID of the mouse click on the playing board
+	 * -assumes board is 480x480
+	 *OUTPUT:
+	 * -ID array -->length 2
 	 */
 	public int[] coordinateToID(int mPosX, int mPosY) {
 		int[] ID = new int[2];
-		// should convert to while loop with stopping condition when both are
-		// found
 		for (int i = 0; i < mPositionArray.length - 1; i++) {
 			if (inRange(mPosX - BOARDER, mPositionArray[i], mPositionArray[i + 1]))
 				ID[1] = i;
 			if (inRange(mPosY - BOARDER, mPositionArray[i], mPositionArray[i + 1]))
 				ID[0] = i;
 		}
-		// System.out.printf("\nID: row %d col %d : mouse click: x %d y %d\n",
-		// ID[0] + 1, ID[1] + 1, mPosX, mPosY);
 		return ID;
 	}
-
+	/*INPUTS:
+	 *- Tile iD
+	 * FUNCTION:
+	 * -Checks if the input ID is the same as the currently focused ID
+	 * OUTPUT:
+	 *  - boolean
+	 * */
 	public boolean isFocused(int[] id) {
 		if (focusedLoc[0] == id[0] && focusedLoc[1] == id[1])
 			return true;
@@ -78,8 +85,12 @@ public class GameBoardModel {
 		return this.focusedLoc;
 	}
 
-	/*
-	 * STATUS: working -returns the upper left corner coordinates
+	/*INPUTS:
+	 * - ID of tile
+	 * FUNCTION:
+	 * -returns the co-ordinates of the upper left corner of the tile
+	 * OUTPUT:
+	 * -integer array of legnth 2
 	 */
 	public int[] IDtoCoordinate(int[] ID) {
 		if (ID[0] > 7 || ID[1] > 7) {
@@ -88,14 +99,14 @@ public class GameBoardModel {
 		int[] coord = new int[2];
 		coord[1] = mPositionArray[ID[0]] + BOARDER;
 		coord[0] = mPositionArray[ID[1]] + BOARDER;
-		// System.out.printf("\nCoord gen: x %d y %d: ID: row %d col %d\n",
-		// coord[0], coord[1], ID[0] + 1, ID[1] + 1);
 		return coord;
 	}
 
-	/*
-	 * STATUS: working -checks if x<=n<y returns true if they are otherwise
-	 * false -helper method for coordToID
+	/*INPUTS:
+	 *-integer values, x, y, n
+	 *FUNCTION:
+ 	 *-returns true if x<=n<y otherwise false
+	 *-helper method for coordToID
 	 */
 	private boolean inRange(int n, int x, int y) {
 		if (x <= n && n < y)
@@ -103,10 +114,14 @@ public class GameBoardModel {
 		else
 			return false;
 	}
-
+	/*INPUTS:
+	 * -ID selected
+	 * -ID to jump to
+	 * FUNCTION:
+	 * -moves the peice from selected ID to the Jump to ID
+	 * */
 	public void movePeice(int[] selectedID, int[] moveToID) {
-		System.out.println((int) Math.abs(selectedID[0]- selectedID[0] ));
-		if (((int) Math.abs(selectedID[0]- moveToID[0] )== 2)){
+		if (shouldUpdateScore(selectedID, moveToID)) {
 			setBoardValue(calcIdToRemove(selectedID, moveToID), EMPTY_SPACE);
 			updateScore();
 			System.out.println("red: " + getRedScore());
@@ -120,8 +135,14 @@ public class GameBoardModel {
 		}
 	}
 	
-	private int[] calcIdToRemove(int[] selectedID, int[] moveToID){
-		return genId((selectedID[0] + moveToID[0])/2,(selectedID[1] + moveToID[1])/2);
+	/* INPUTS:
+	 * -ID selected
+	 * -ID to jump to
+	 * FUNCTION:
+	 * -calculates the id to be removed when a peice jumps the opponent
+	 * */
+	private int[] calcIdToRemove(int[] selectedID, int[] moveToID) {
+		return genId((selectedID[0] + moveToID[0]) / 2, (selectedID[1] + moveToID[1]) / 2);
 	}
 
 	/*
@@ -129,34 +150,33 @@ public class GameBoardModel {
 	 * that are possible moves -In the view highlight this tiles after check
 	 */
 	public ArrayList<int[]> getPossibleMoves(int[] ID) {
-		int[] checkLeftRight = { -1, 1, -1, 1 };
-		int[] checkUpDown = { -1, -1, 1, 1 };
 
 		ArrayList<int[]> moves = new ArrayList<int[]>();
 		for (int i = 0; i < 4; i++) {
 			int[] tempID = new int[2];
-			if (((getIdCol(ID) == 0 && i == 0) || (getIdCol(ID) == 0 && i == 2)) || ((getIdCol(ID) == 7 && i == 1) || (getIdCol(ID) == 7 && i == 3))) {
+			if (isOnLeftOrRightEdge(ID, i)) {
 				continue;
 			} else {
-				tempID[0] = getIdRow(ID) + checkUpDown[i];
-				tempID[1] = getIdCol(ID) + checkLeftRight[i];
-
+				// creates temporary Id's surrounding focused ID
+				tempID[0] = getIdRow(ID) + CHECK_UP_DOWN[i];
+				tempID[1] = getIdCol(ID) + CHECK_LEFT_RIGHT[i];
+				// this needs work
 				if (getIdValue(ID) == CHECKER_BLACK && tempID[0] < getIdRow(ID)) {
 					if (checkTileAvailiblity(tempID)) {
 						moves.add(tempID);
 					} else if ((getIdValue(tempID) == CHECKER_RED || getIdValue(tempID) == CHECKER_RED_KING)
-							&& checkTileAvailiblity(genId(tempID[0] + checkUpDown[i], tempID[1] + checkLeftRight[i]))) {
-						moves.add(genId(tempID[0] + checkUpDown[i], tempID[1] + checkLeftRight[i]));
+							&& checkTileAvailiblity(genId(tempID[0] + CHECK_UP_DOWN[i], tempID[1] + CHECK_LEFT_RIGHT[i]))) {
+						moves.add(genId(tempID[0] + CHECK_UP_DOWN[i], tempID[1] + CHECK_LEFT_RIGHT[i]));
 					}
-					
+
 				} else if (getIdValue(ID) == CHECKER_RED && tempID[0] > getIdRow(ID)) {
 					if (checkTileAvailiblity(tempID)) {
 						moves.add(tempID);
 					} else if ((getIdValue(tempID) == CHECKER_BLACK || getIdValue(tempID) == CHECKER_BLACK_KING)
-							&& checkTileAvailiblity(genId(tempID[0] + checkUpDown[i], tempID[1] + checkLeftRight[i]))) {
-						moves.add(genId(tempID[0] + checkUpDown[i], tempID[1] + checkLeftRight[i]));
+							&& checkTileAvailiblity(genId(tempID[0] + CHECK_UP_DOWN[i], tempID[1] + CHECK_LEFT_RIGHT[i]))) {
+						moves.add(genId(tempID[0] + CHECK_UP_DOWN[i], tempID[1] + CHECK_LEFT_RIGHT[i]));
 					}
-					
+
 				} else if (checkTileAvailiblity(tempID) && (getIdValue(ID) == CHECKER_BLACK_KING || getIdValue(ID) == CHECKER_RED_KING)) {
 					moves.add(tempID);
 				}
@@ -166,20 +186,10 @@ public class GameBoardModel {
 
 	}
 
-//	private int getOppositeIdValue(int[] ID) {
-//		switch (getIdValue(ID)) {
-//		case CHECKER_BLACK:
-//			return CHECKER_RED;
-//		case CHECKER_RED:
-//			return CHECKER_BLACK;
-//		case CHECKER_BLACK_KING:
-//			return CHECKER_RED_KING;
-//		case CHECKER_RED_KING:
-//			return CHECKER_BLACK;
-//		default:
-//			return 0;
-//		}
-//	}
+	private boolean isOnLeftOrRightEdge(int[] ID, int searchIndex) {
+		return ((getIdCol(ID) == 0 && searchIndex == 0) || (getIdCol(ID) == 0 && searchIndex == 2))
+				|| ((getIdCol(ID) == 7 && searchIndex == 1) || (getIdCol(ID) == 7 && searchIndex == 3));
+	}
 
 	public int getIdValue(int[] ID) {
 		return mBoard[ID[0]][ID[1]];
@@ -202,16 +212,8 @@ public class GameBoardModel {
 		return temp;
 	}
 
-	public boolean isPlayerBlackTurn() {
-		return playerBlackTurn;
-	}
-
-	public boolean isPlayerRedTurn() {
-		return !playerBlackTurn;
-	}
-
-	public void setPlayerBlackTurn(boolean bool) {
-		this.playerBlackTurn = bool;
+	private boolean shouldUpdateScore(int[] selectedID, int[] moveToID) {
+		return (((int) Math.abs(selectedID[0] - moveToID[0]) == 2));
 	}
 
 	public boolean checkTileAvailiblity(int[] ID) {
@@ -232,10 +234,6 @@ public class GameBoardModel {
 	public void setmBoard(int[][] mBoard) {
 		this.mBoard = mBoard;
 	}
-	
-	public void increaseRedScore(){
-		
-	}
 
 	public ArrayList<int[]> getMovesOnFocus() {
 		return movesOnFocus;
@@ -243,6 +241,45 @@ public class GameBoardModel {
 
 	public void setMovesOnFocus(ArrayList<int[]> movesOnFocus) {
 		this.movesOnFocus = movesOnFocus;
+	}
+
+	public boolean isPlayerBlackTurn() {
+		return playerBlackTurn;
+	}
+
+	public boolean isPlayerRedTurn() {
+		return !playerBlackTurn;
+	}
+
+	public void setPlayerBlackTurn(boolean bool) {
+		this.playerBlackTurn = bool;
+	}
+
+	public boolean isIdTurn(int[] id) {
+		// black turn is true
+		// red turn is false
+		if ((getIdValue(id) == CHECKER_BLACK || getIdValue(id) == CHECKER_BLACK_KING) && isPlayerBlackTurn())
+			return true;
+		else if ((getIdValue(id) == CHECKER_RED || getIdValue(id) == CHECKER_RED_KING) && isPlayerRedTurn())
+			return true;
+		else
+			return false;
+	}
+
+	public void updateScore() {
+		if (isPlayerBlackTurn()) {
+			this.blackScore++;
+		} else {
+			this.redScore++;
+		}
+	}
+
+	public int getRedScore() {
+		return redScore;
+	}
+
+	public int getBlackScore() {
+		return blackScore;
 	}
 
 	public void printGameBoard() {
@@ -258,33 +295,5 @@ public class GameBoardModel {
 
 	public void removeMovesOnFocus() {
 		this.movesOnFocus.clear();
-	}
-
-	public boolean isIdTurn(int[] id) {
-		// black turn is true
-		// red turn is false
-		if ((getIdValue(id) == CHECKER_BLACK || getIdValue(id) == CHECKER_BLACK_KING) && isPlayerBlackTurn())
-			return true;
-		else if ((getIdValue(id) == CHECKER_RED || getIdValue(id) == CHECKER_RED_KING) && isPlayerRedTurn())
-			return true;
-		else
-			return false;
-	}
-	
-	public void updateScore(){
-		if (isPlayerBlackTurn()){
-			this.blackScore++;
-		}else {
-			this.redScore++;
-		}
-	}
-
-	public int getRedScore() {
-		return redScore;
-	}
-
-
-	public int getBlackScore() {
-		return blackScore;
 	}
 }
