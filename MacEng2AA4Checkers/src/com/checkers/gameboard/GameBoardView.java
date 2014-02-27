@@ -1,7 +1,6 @@
 package com.checkers.gameboard;
 
 import java.applet.Applet;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Menu;
@@ -13,63 +12,68 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.net.URL;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+
 @SuppressWarnings("serial")
-public class GameBoardView extends Applet implements Runnable, MouseListener,ActionListener {
+public class GameBoardView extends Applet implements Runnable, MouseListener, ActionListener {
 
 	private int fps = 60;
+	//calculates the time to sleep thread to achieve desired fps
 	private int threadSleepTime = (int) 1000 / fps;
+	private boolean running = false;
 	private Image image;
-	public URL baseContext;
 	private Graphics second;
+	private JFrame frame;
 	private GameBoardController boardController;
-	private Frame frame;
 
-	@Override
 	public void init() {
-		setSize(480+120, 480);
+		//window parameters
+		setSize(480 + 120, 480);
 		setFocusable(true);
 		addMouseListener(this);
+		
+		running = true;
 
-		frame = (Frame) this.getParent().getParent();
+		frame = new JFrame();
 		frame.setResizable(false);
 		frame.setLocation(250, 20);
 		frame.setTitle("Checkers - 2AA4");
-		
 		frame.setMenuBar(setUpMenu());
-				
-		
-		
-		//image loading must be done in view since getImage extends Applet	
-		
-		boardController = new GameBoardController(setUpImages());
+
+		try {
+			boardController = new GameBoardController(setUpImages());
+		} catch (IOException e) {
+			//image loading error
+			e.printStackTrace();
+		}
 
 	}
+	
+	//gets frame
+	public JFrame getFrame(){
+		return this.frame;
+	}
 
-	@Override
+
 	public void start() {
 		Thread thread = new Thread(this);
 		thread.start();
-		
-		
+
 	}
 
-	@Override
 	public void stop() {
-
+		running = false;
+		System.exit(0);
 	}
 
-	@Override
-	public void destroy() {
-		
-	}
 
-	@Override
 	public void run() {
 		// game loop
-		while (true) {
+		while (running) {
 			repaint();
 			try {
 				Thread.sleep(threadSleepTime);
@@ -80,9 +84,9 @@ public class GameBoardView extends Applet implements Runnable, MouseListener,Act
 
 	}
 
-	@Override
+
 	public void update(Graphics g) {
-		//double buffering system
+		// double buffering system
 		if (image == null) {
 			image = createImage(this.getWidth(), this.getHeight());
 			second = image.getGraphics();
@@ -94,25 +98,23 @@ public class GameBoardView extends Applet implements Runnable, MouseListener,Act
 		paint(second);
 
 		g.drawImage(image, 0, 0, this);
-
 	}
 
-	@Override
+	//main paint method -> calls controller draw method
 	public void paint(Graphics g) {
 		boardController.drawBoard(g);
 	}
-		
+
+	//(+) mouse methods
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		System.out.println(e.getX() +" "+ e.getY());
 		boardController.movePeice(e);
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		boardController.menuClick(e);
 	}
-
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
@@ -138,46 +140,53 @@ public class GameBoardView extends Applet implements Runnable, MouseListener,Act
 
 	}
 	
-	private ArrayList<Image> setUpImages() {
-		baseContext = this.getCodeBase();
+	//(-) end of mouse methods
+
+	
+	//image loader
+	private ArrayList<Image> setUpImages() throws IOException {
 		ArrayList<Image> imageList = new ArrayList<Image>();
-		imageList.add(getImage(baseContext, "data/Checker_Red.png"));
-		imageList.add(getImage(baseContext, "data/Checker_Black.png"));
-		imageList.add(getImage(baseContext, "data/Board.png"));
-		imageList.add(getImage(baseContext, "data/highlighted.png"));
-		imageList.add(getImage(baseContext, "data/Checker_Red_King.png"));
-		imageList.add(getImage(baseContext, "data/Checker_Black_King.png"));
-		imageList.add(getImage(baseContext, "data/BLACK.png"));
-		imageList.add(getImage(baseContext, "data/RED.png"));
-		imageList.add(getImage(baseContext, "data/BLACK_H.png"));
-		imageList.add(getImage(baseContext, "data/RED_H.png"));
-		imageList.add(getImage(baseContext, "data/ScoreBoard.png"));
+		imageList.add(ImageIO.read(getClass().getResource("/data/Checker_Red.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/Checker_Black.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/Board.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/highlighted.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/Checker_Red_King.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/Checker_Black_King.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/BLACK.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/RED.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/BLACK_H.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/RED_H.png")));
+		imageList.add(ImageIO.read(getClass().getResource("/data/ScoreBoard.png")));
 		return imageList;
 	}
 
+	//initializes menu bar (save,load,new...)
 	private MenuBar setUpMenu() {
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("Settings");
-	    MenuItem menuItem;
-		
+		MenuItem menuItem;
+
+		//add menu to menubar
 		menuBar.add(menu);
-		
+
+		//add menu item 1
 		menuItem = new MenuItem("Save Game");
 		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_S));
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
+		//add menu item 2
 		menuItem = new MenuItem("Load Game");
 		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_L));
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
-		
+
+		//add menu item 3
 		menuItem = new MenuItem("New Game");
 		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_N));
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 		return menuBar;
-		
 	}
-
+	
 }

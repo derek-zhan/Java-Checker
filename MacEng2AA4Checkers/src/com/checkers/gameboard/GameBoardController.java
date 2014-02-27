@@ -18,13 +18,11 @@ import com.cole.file.io.myFileReader;
 
 public class GameBoardController {
 
-	private GameBoardModel gameBoard;
+	private GameBoardModel gameBoard = new GameBoardModel();
 	private GameBoardView view = new GameBoardView();
 	private Image board, red, black, highlighted, red_king, black_king, black_word, red_word, black_h_word, red_h_word, score_board;
 
 	public GameBoardController(ArrayList<Image> images) {
-		
-		gameBoard = new GameBoardModel();
 
 		red = images.get(0);
 		black = images.get(1);
