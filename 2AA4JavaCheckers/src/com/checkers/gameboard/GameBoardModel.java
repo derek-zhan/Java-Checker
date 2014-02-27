@@ -21,37 +21,40 @@ public class GameBoardModel {
 	private boolean playerBlackTurn = true;
 	private int redScore = 0;
 	private int blackScore = 0;
-	//defines how a peice is searched
+	// defines how a piece is searched
 	private final int[] CHECK_LEFT_RIGHT = { -1, 1, -1, 1 };
 	private final int[] CHECK_UP_DOWN = { -1, -1, 1, 1 };
-	//default board
-	private final int[][] mInitialBoard = { { 0, 2, 0, 2, 0, 2, 0, 2 }, { 2, 0, 2, 0, 2, 0, 2, 0 }, { 0, 2, 0, 2, 0, 2, 0, 2 }, { 0, 0, 0, 0, 0, 0, 0, 0 },
-			{ 0, 0, 0, 0, 0, 0, 0, 0 }, { 1, 0, 1, 0, 1, 0, 1, 0 }, { 0, 1, 0, 1, 0, 1, 0, 1 }, { 1, 0, 1, 0, 1, 0, 1, 0 } };
+	// default board
+	private final int[][] mInitialBoard = { 
+			{ 0, 2, 0, 2, 0, 2, 0, 2 },
+			{ 2, 0, 2, 0, 2, 0, 2, 0 }, 
+			{ 0, 2, 0, 2, 0, 2, 0, 2 }, 
+			{ 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+			{ 1, 0, 1, 0, 1, 0, 1, 0 }, 
+			{ 0, 1, 0, 1, 0, 1, 0, 1 }, 
+			{ 1, 0, 1, 0, 1, 0, 1, 0 } };
 
 	/*-used as board reference values
 	 *-can make this generated for different screen resolutions
 	 */
 	private int[] mPositionArray = { 0, 60, 120, 180, 240, 300, 360, 420, 480 };
 
-	//sets default board and default turn
+	// sets default board and default turn
 	public GameBoardModel() {
 		this.mBoard = mInitialBoard;
 	}
 
-	//constructor with option to set turn and board
+	// constructor with option to set turn and board
 	public GameBoardModel(int[][] board, boolean blackTurn) {
 		this.mBoard = board;
 		this.playerBlackTurn = blackTurn;
 	}
 
-	/*INPUTS:
-	 * -integer mouse Position X
-	 * -integer mouse Position Y
-	 *FUNCTION:
-	 * -generates the ID of the mouse click on the playing board
-	 * -assumes board is 480x480
-	 *OUTPUT:
-	 * -ID array -->length 2
+	/*
+	 * INPUTS: -integer mouse Position X -integer mouse Position YFUNCTION:
+	 * -generates the ID of the mouse click on the playing board -assumes board
+	 * is 480x480OUTPUT: -ID array -->length 2
 	 */
 	public int[] coordinateToID(int mPosX, int mPosY) {
 		int[] ID = new int[2];
@@ -63,13 +66,11 @@ public class GameBoardModel {
 		}
 		return ID;
 	}
-	/*INPUTS:
-	 *- Tile iD
-	 * FUNCTION:
-	 * -Checks if the input ID is the same as the currently focused ID
-	 * OUTPUT:
-	 *  - boolean
-	 * */
+
+	/*
+	 * INPUTS:- Tile iD FUNCTION: -Checks if the input ID is the same as the
+	 * currently focused ID OUTPUT: - boolean
+	 */
 	public boolean isFocused(int[] id) {
 		if (focusedLoc[0] == id[0] && focusedLoc[1] == id[1])
 			return true;
@@ -85,12 +86,9 @@ public class GameBoardModel {
 		return this.focusedLoc;
 	}
 
-	/*INPUTS:
-	 * - ID of tile
-	 * FUNCTION:
-	 * -returns the co-ordinates of the upper left corner of the tile
-	 * OUTPUT:
-	 * -integer array of legnth 2
+	/*
+	 * INPUTS: - ID of tile FUNCTION: -returns the co-ordinates of the upper
+	 * left corner of the tile OUTPUT: -integer array of legnth 2
 	 */
 	public int[] IDtoCoordinate(int[] ID) {
 		if (ID[0] > 7 || ID[1] > 7) {
@@ -102,11 +100,9 @@ public class GameBoardModel {
 		return coord;
 	}
 
-	/*INPUTS:
-	 *-integer values, x, y, n
-	 *FUNCTION:
- 	 *-returns true if x<=n<y otherwise false
-	 *-helper method for coordToID
+	/*
+	 * INPUTS:-integer values, x, y, nFUNCTION:-returns true if x<=n<y otherwise
+	 * false-helper method for coordToID
 	 */
 	private boolean inRange(int n, int x, int y) {
 		if (x <= n && n < y)
@@ -114,12 +110,11 @@ public class GameBoardModel {
 		else
 			return false;
 	}
-	/*INPUTS:
-	 * -ID selected
-	 * -ID to jump to
-	 * FUNCTION:
-	 * -moves the peice from selected ID to the Jump to ID
-	 * */
+
+	/*
+	 * INPUTS: -ID selected -ID to jump to FUNCTION: -moves the peice from
+	 * selected ID to the Jump to ID
+	 */
 	public void movePeice(int[] selectedID, int[] moveToID) {
 		if (shouldUpdateScore(selectedID, moveToID)) {
 			setBoardValue(calcIdToRemove(selectedID, moveToID), EMPTY_SPACE);
@@ -134,13 +129,11 @@ public class GameBoardModel {
 			System.out.println("\nTile is Occupied");
 		}
 	}
-	
-	/* INPUTS:
-	 * -ID selected
-	 * -ID to jump to
-	 * FUNCTION:
-	 * -calculates the id to be removed when a peice jumps the opponent
-	 * */
+
+	/*
+	 * INPUTS: -ID selected -ID to jump to FUNCTION: -calculates the id to be
+	 * removed when a peice jumps the opponent
+	 */
 	private int[] calcIdToRemove(int[] selectedID, int[] moveToID) {
 		return genId((selectedID[0] + moveToID[0]) / 2, (selectedID[1] + moveToID[1]) / 2);
 	}
@@ -154,7 +147,7 @@ public class GameBoardModel {
 		ArrayList<int[]> moves = new ArrayList<int[]>();
 		for (int i = 0; i < 4; i++) {
 			int[] tempID = new int[2];
-			if (isOnLeftOrRightEdge(ID, i)) {
+			if (isOnLeftOrRightEdge(ID, i) || isTopOrBottomEdge(ID, i)) {
 				continue;
 			} else {
 				// creates temporary Id's surrounding focused ID
@@ -189,6 +182,12 @@ public class GameBoardModel {
 	private boolean isOnLeftOrRightEdge(int[] ID, int searchIndex) {
 		return ((getIdCol(ID) == 0 && searchIndex == 0) || (getIdCol(ID) == 0 && searchIndex == 2))
 				|| ((getIdCol(ID) == 7 && searchIndex == 1) || (getIdCol(ID) == 7 && searchIndex == 3));
+	}
+
+	private boolean isTopOrBottomEdge(int[] ID, int searchIndex) {
+		return (((getIdRow(ID) == 0 && searchIndex == 0) || (getIdRow(ID) == 0 && searchIndex == 1)) 
+				|| (((getIdRow(ID) == 7 && searchIndex == 2) || (getIdRow(ID) == 7 && searchIndex == 3))));
+
 	}
 
 	public int getIdValue(int[] ID) {

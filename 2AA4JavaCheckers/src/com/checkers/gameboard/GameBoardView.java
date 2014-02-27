@@ -104,6 +104,7 @@ public class GameBoardView extends Applet implements Runnable, MouseListener,Act
 		
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		System.out.println(e.getX() +" "+ e.getY());
 		boardController.movePeice(e);
 	}
 	
@@ -138,7 +139,7 @@ public class GameBoardView extends Applet implements Runnable, MouseListener,Act
 	}
 	
 	private ArrayList<Image> setUpImages() {
-		baseContext = getDocumentBase();
+		baseContext = this.getCodeBase();
 		ArrayList<Image> imageList = new ArrayList<Image>();
 		imageList.add(getImage(baseContext, "data/Checker_Red.png"));
 		imageList.add(getImage(baseContext, "data/Checker_Black.png"));
