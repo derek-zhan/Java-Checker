@@ -18,13 +18,14 @@ public class GameBoardModel {
 	// dummy initialization
 	private int[] focusedLoc = { -10, -10 };
 	private ArrayList<int[]> movesOnFocus = new ArrayList<int[]>();
+	// always start with black
 	private boolean playerBlackTurn = true;
 	private int redScore = 0;
 	private int blackScore = 0;
 	// defines how a piece is searched
 	private final int[] CHECK_LEFT_RIGHT = { -1, 1, -1, 1 };
 	private final int[] CHECK_UP_DOWN = { -1, -1, 1, 1 };
-	// default board
+	// default game board
 	private final int[][] mInitialBoard = { 
 			{ 0, 2, 0, 2, 0, 2, 0, 2 },
 			{ 2, 0, 2, 0, 2, 0, 2, 0 }, 
@@ -92,7 +93,7 @@ public class GameBoardModel {
 	 */
 	public int[] IDtoCoordinate(int[] ID) {
 		if (ID[0] > 7 || ID[1] > 7) {
-			System.out.println("you are crazy");
+			System.out.println("ID error");
 		}
 		int[] coord = new int[2];
 		coord[1] = mPositionArray[ID[0]] + BOARDER;
@@ -112,15 +113,15 @@ public class GameBoardModel {
 	}
 
 	/*
-	 * INPUTS: -ID selected -ID to jump to FUNCTION: -moves the peice from
+	 * INPUTS: -ID selected -ID to jump to FUNCTION: -moves the piece from
 	 * selected ID to the Jump to ID
 	 */
-	public void movePeice(int[] selectedID, int[] moveToID) {
+	public void movePiece(int[] selectedID, int[] moveToID) {
 		if (shouldUpdateScore(selectedID, moveToID)) {
 			setBoardValue(calcIdToRemove(selectedID, moveToID), EMPTY_SPACE);
 			updateScore();
 			System.out.println("red: " + getRedScore());
-			System.out.println("balck: " + getBlackScore());
+			System.out.println("black: " + getBlackScore());
 		}
 		if (checkTileAvailiblity(moveToID)) {
 			setBoardValue(moveToID, getIdValue(selectedID));
@@ -132,7 +133,7 @@ public class GameBoardModel {
 
 	/*
 	 * INPUTS: -ID selected -ID to jump to FUNCTION: -calculates the id to be
-	 * removed when a peice jumps the opponent
+	 * removed when a piece jumps the opponent
 	 */
 	private int[] calcIdToRemove(int[] selectedID, int[] moveToID) {
 		return genId((selectedID[0] + moveToID[0]) / 2, (selectedID[1] + moveToID[1]) / 2);
@@ -153,7 +154,8 @@ public class GameBoardModel {
 				// creates temporary Id's surrounding focused ID
 				tempID[0] = getIdRow(ID) + CHECK_UP_DOWN[i];
 				tempID[1] = getIdCol(ID) + CHECK_LEFT_RIGHT[i];
-				// this needs work
+				// Logic: testing every possible steps by finding the biggest possible step
+				// Problem: only single jump
 				if (getIdValue(ID) == CHECKER_BLACK && tempID[0] < getIdRow(ID)) {
 					if (checkTileAvailiblity(tempID)) {
 						moves.add(tempID);
@@ -178,12 +180,12 @@ public class GameBoardModel {
 		return moves;
 
 	}
-
+	// detect whether its left or right edge
 	private boolean isOnLeftOrRightEdge(int[] ID, int searchIndex) {
 		return ((getIdCol(ID) == 0 && searchIndex == 0) || (getIdCol(ID) == 0 && searchIndex == 2))
 				|| ((getIdCol(ID) == 7 && searchIndex == 1) || (getIdCol(ID) == 7 && searchIndex == 3));
 	}
-
+	// detect whether its top or bottom edge
 	private boolean isTopOrBottomEdge(int[] ID, int searchIndex) {
 		return (((getIdRow(ID) == 0 && searchIndex == 0) || (getIdRow(ID) == 0 && searchIndex == 1)) 
 				|| (((getIdRow(ID) == 7 && searchIndex == 2) || (getIdRow(ID) == 7 && searchIndex == 3))));
@@ -255,6 +257,7 @@ public class GameBoardModel {
 	}
 
 	public boolean isIdTurn(int[] id) {
+		// using boolean value to decide whose turn
 		// black turn is true
 		// red turn is false
 		if ((getIdValue(id) == CHECKER_BLACK || getIdValue(id) == CHECKER_BLACK_KING) && isPlayerBlackTurn())
@@ -280,7 +283,7 @@ public class GameBoardModel {
 	public int getBlackScore() {
 		return blackScore;
 	}
-
+/*
 	public void printGameBoard() {
 		System.out.print("Current Game View \n---------------\n");
 		for (int i = 0; i < mBoard.length; i++) {
@@ -291,7 +294,7 @@ public class GameBoardModel {
 		}
 		System.out.print("---------------");
 	}
-
+*/
 	public void removeMovesOnFocus() {
 		this.movesOnFocus.clear();
 	}
