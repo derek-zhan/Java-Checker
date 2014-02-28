@@ -7,7 +7,8 @@ public class Parser {
 	public Parser() {
 
 	}
-
+	
+	// convert the context read from file to an interger 2D array
 	public int[][] parseGameBoard(ArrayList<String> dataToParse) {
 		int[][] board = new int[8][8];
 		for (int i = 0; i < dataToParse.size(); i++) {
