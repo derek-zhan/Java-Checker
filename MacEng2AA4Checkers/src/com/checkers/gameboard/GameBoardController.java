@@ -23,7 +23,7 @@ public class GameBoardController {
 	private Image board, red, black, highlighted, red_king, black_king, black_word, red_word, black_h_word, red_h_word, score_board;
 
 	public GameBoardController(ArrayList<Image> images) {
-
+		// setting up all the images as arraylist
 		red = images.get(0);
 		black = images.get(1);
 		board = images.get(2);
@@ -38,7 +38,8 @@ public class GameBoardController {
 
 	}
 
-	public void movePeice(MouseEvent e) {
+	// move piece logic depends on mouse event
+	public void movePiece(MouseEvent e) {
 		int[] id = gameBoard.coordinateToID(e.getX(), e.getY());
 		if (gameBoard.isIdTurn(id)) {
 			gameBoard.setMovesOnFocus(gameBoard.getPossibleMoves(id));
@@ -49,7 +50,7 @@ public class GameBoardController {
 			for (int[] ID : gameBoard.getMovesOnFocus()) {
 
 				if (gameBoard.coordinateToID(e.getX(), e.getY())[0] == ID[0] && gameBoard.coordinateToID(e.getX(), e.getY())[1] == ID[1]) {
-					gameBoard.movePeice(gameBoard.getFocusedLocation(), ID);
+					gameBoard.movePiece(gameBoard.getFocusedLocation(), ID);
 					gameBoard.setPlayerBlackTurn(!gameBoard.isPlayerBlackTurn());
 					gameBoard.removeMovesOnFocus();
 					break;
@@ -57,7 +58,8 @@ public class GameBoardController {
 			}
 		}
 	}
-
+	
+	// function for drawing the board
 	public void drawBoard(Graphics g) {
 		g.drawImage(board, 0, 0, view);
 		g.drawImage(score_board, 480, 0, view);
@@ -105,6 +107,7 @@ public class GameBoardController {
 		}
 	}
 
+	// setting up the menu on the right top
 	public void menuClick(ActionEvent e) {
 		switch (e.getActionCommand()) {
 		case "Save Game":
@@ -161,6 +164,7 @@ public class GameBoardController {
 		}
 	}
 
+	// convert whole board to a string array list
 	private ArrayList<String> convertToStringArrayList() {
 		ArrayList<String> strList = new ArrayList<String>();
 		StringBuilder strBuilder = new StringBuilder();
