@@ -35,6 +35,16 @@ public class GameBoardModel {
 			{ 1, 0, 1, 0, 1, 0, 1, 0 }, 
 			{ 0, 1, 0, 1, 0, 1, 0, 1 }, 
 			{ 1, 0, 1, 0, 1, 0, 1, 0 } };
+	
+	private final int[][] blankBoard = {
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+			{ 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+			{ 0, 0, 0, 0, 0, 0, 0, 0 } };
 
 	/*-used as board reference values
 	 *-can make this generated for different screen resolutions
@@ -204,7 +214,7 @@ public class GameBoardModel {
 		return ID[1];
 	}
 
-	private void setBoardValue(int[] ID, int value) {
+	public void setBoardValue(int[] ID, int value) {
 		mBoard[ID[0]][ID[1]] = value;
 	}
 
@@ -298,4 +308,19 @@ public class GameBoardModel {
 	public void removeMovesOnFocus() {
 		this.movesOnFocus.clear();
 	}
+	
+	// returns true if tile is dark on the board
+	public boolean isDarkTile(int[] ID) {
+		if (((int) Math.pow(-1, ID[0] + ID[1])) == -1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public int[][] getBlankBoard() {
+		return blankBoard;
+	}
+	
+	
 }

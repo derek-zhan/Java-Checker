@@ -43,13 +43,15 @@ public class GameBoardView extends Applet implements Runnable, MouseListener, Ac
 		frame.setLocation(250, 20);
 		frame.setTitle("Checkers - 2AA4");
 		frame.setMenuBar(setUpMenu());
-
+		
 		try {
 			boardController = new GameBoardController(setUpImages());
 		} catch (IOException e) {
 			//image loading error
 			e.printStackTrace();
 		}
+		
+		boardController.onStartUp();
 
 	}
 	
@@ -108,7 +110,13 @@ public class GameBoardView extends Applet implements Runnable, MouseListener, Ac
 	//(+) mouse methods
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		boardController.movePeice(e);
+		
+		if (boardController.isStartingUp()){
+			boardController.putPeiceOnBoard(e);
+		} else {
+			boardController.movePeice(e);
+		}
+		
 	}
 
 	@Override

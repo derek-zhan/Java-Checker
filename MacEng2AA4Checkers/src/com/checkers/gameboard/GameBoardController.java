@@ -22,6 +22,9 @@ public class GameBoardController {
 	private GameBoardView view = new GameBoardView();
 	private Image board, red, black, highlighted, red_king, black_king, black_word, red_word, black_h_word, red_h_word, score_board;
 
+	private boolean isStartingUp = false;
+	private int clickCounter = 0;
+
 	public GameBoardController(ArrayList<Image> images) {
 		// setting up all the images as arraylist
 		red = images.get(0);
@@ -77,7 +80,7 @@ public class GameBoardController {
 				g.drawImage(highlighted, gameBoard.IDtoCoordinate(id)[0], gameBoard.IDtoCoordinate(id)[1], view);
 			}
 		}
-		
+
 		int[] id = new int[2];
 		int[] loc;
 		for (int i = 0; i < gameBoard.getmBoard().length; i++) {
@@ -160,7 +163,9 @@ public class GameBoardController {
 
 			// TODO: allow writing of whose turn it is!
 			Parser parse = new Parser();
-			gameBoard = new GameBoardModel(parse.parseGameBoard(data), gameBoard.isPlayerBlackTurn());
+			int tempBoard [][] = parse.parseGameBoard(data);
+			boolean tempTurn = parse.isBlackTurn();
+			gameBoard = new GameBoardModel(tempBoard, tempTurn);
 		}
 	}
 
@@ -175,6 +180,75 @@ public class GameBoardController {
 			strList.add(strBuilder.toString());
 			strBuilder.setLength(0);
 		}
+		
+		if(gameBoard.isPlayerBlackTurn()){
+			strList.add("t");
+		}else{
+			strList.add("f");
+		}
 		return strList;
 	}
+
+	/*-used to ask the user if they want to select the 
+	 * board or choose a standard setup
+	 * */
+	public void onStartUp() {
+		int confirm = JOptionPane.showConfirmDialog(view,"Would you like to start a standard game (yes) or place peices (No) ?");
+		if (confirm == 0) {
+			System.out.println("yes");
+		} else if (confirm == 1) {
+			System.out.println("no");
+			JOptionPane.showMessageDialog(view, "Place the Black Players", "Black Players", JOptionPane.PLAIN_MESSAGE);
+			setStartingUp(true);
+			gameBoard.setmBoard(gameBoard.getBlankBoard());
+		} else {
+		} // do nothing
+		
+	}
+
+	//keeps track of whether the game is starting
+	public boolean isStartingUp() {
+		return isStartingUp;
+	}
+	
+	public void setStartingUp(boolean isStartingUp) {
+		this.isStartingUp = isStartingUp;
+	}
+
+	//adds peice to the board when user selected board is choosen
+	public void putPeiceOnBoard(MouseEvent e) {
+		int id[] = gameBoard.coordinateToID(e.getX(), e.getY());
+		if (!gameBoard.isDarkTile(id)){
+			JOptionPane.showMessageDialog(view, "Can Not Place Player on Light Tile!", "Uh-oh", JOptionPane.OK_OPTION);
+			return;
+		}
+		
+		if (clickCounter < 12) {
+			if (gameBoard.checkTileAvailiblity(id)) {
+				gameBoard.setBoardValue(id, GameBoardModel.CHECKER_BLACK);
+				if (clickCounter == 11){
+					JOptionPane.showMessageDialog(view, "Place the Red Players", "Red Players", JOptionPane.PLAIN_MESSAGE);
+				}
+				updateClickCount(id);
+			}
+		} else if (clickCounter >= 12) {
+			if (gameBoard.checkTileAvailiblity(id)) {
+				gameBoard.setBoardValue(id, GameBoardModel.CHECKER_RED);
+				if (clickCounter == 23) {
+					JOptionPane.showMessageDialog(view, "Get Ready To Play!", "All done!", JOptionPane.PLAIN_MESSAGE);
+					setStartingUp(false);
+				}
+				updateClickCount(id);
+			}
+		}
+	}
+
+	//updates the click count to keep track of peices on the board
+	private void updateClickCount(int[] ID) {
+		if (gameBoard.getIdValue(ID) != 0) {
+			clickCounter += 1;
+		} // do nothing
+	}
+	
+	
 }
