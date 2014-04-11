@@ -1,5 +1,21 @@
 package com.checkers.gameboard;
 
+
+/**
+ * myTimer is a timer class used to limit AI movements and set
+ * proper time limits on moves. This class should be reworked to become
+ * more efficient and to allow pause/resume as well as the loading of saved times
+ * from previous game state.
+ * 
+ * TODO:
+ * -allow pause/resume
+ * -load saved times
+ * 
+ * @author SONY
+ * @version 0.3
+ * @since 06-04-2014
+ * 
+ * */
 public class myTimer {
 	private long startTime = 0;
 	private double durationMin = 1;
@@ -18,7 +34,6 @@ public class myTimer {
 
 	public boolean isTimerFinished() {
 		if (running && (System.currentTimeMillis() - startTime) / 1000 > durationMin * 60) {
-			this.running = false;
 			return true;
 		} else
 			return false;

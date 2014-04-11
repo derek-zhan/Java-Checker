@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -22,6 +23,17 @@ import com.cole.file.io.FileWriter;
 import com.cole.file.io.Parser;
 import com.cole.file.io.myFileReader;
 
+/**
+ * GameBoardController is the controller of the checkers application. The
+ * GameBoardController is the controller in the MVC software implementation
+ * pattern. It acts as the top level Hierarchy and connects the GameBoardView
+ * class to the GameBoardModel class.
+ * 
+ * 
+ * @author SONY
+ * @version 0.3
+ * @since 06-04-2014
+ * */
 public class GameBoardController {
 
 	private GameBoardModel gameBoard = new GameBoardModel(false, false);
@@ -29,15 +41,19 @@ public class GameBoardController {
 	private Image board, red, black, highlighted, red_king, black_king, black_word, red_word, black_h_word, red_h_word, score_board, num_0, num_1, num_2,
 			num_3, num_4, num_5, num_6, num_7, num_8, num_9, menuButton;
 
-	private boolean isStartingUp = false;
 	private int clickCounter = 0;
 	private boolean lastStand = false;
 
 	private myTimer timer = new myTimer(5.0);
 	private myTimer timerAI = new myTimer(0.0);
 
-	// basic constructor, sets the images that were loaded
-	// the gameBoardView
+	/**
+	 * Class constructor
+	 * 
+	 * @param images
+	 *            ArrayList<Image> of images
+	 * 
+	 * */
 	public GameBoardController(ArrayList<Image> images) {
 		red = images.get(0);
 		black = images.get(1);
@@ -63,15 +79,18 @@ public class GameBoardController {
 		menuButton = images.get(21);
 	}
 
-	/*
-	 * Moves piece depending on the location of the mouseclick, available moves,
-	 * and player turnINPUTS:-MouseEvent object
-	 */
+	/**
+	 * Moves piece depending on the location of the mouse click and previously
+	 * selected pieces
+	 * 
+	 * @param e
+	 *            MouseEvent object
+	 * 
+	 * @return void
+	 * */
 	public void movePeice(MouseEvent e) {
 
 		int[] id = gameBoard.coordinateToID(e.getX(), e.getY());
-
-		// System.out.println("isOppNear: " + gameBoard.isOpponentNear(id, 1));
 
 		if (gameBoard.isIdTurn(id)) {
 			gameBoard.setFocusedLocation(id);
@@ -79,8 +98,8 @@ public class GameBoardController {
 			ArrayList<int[]> jumpingPos = gameBoard.getPositions(true, gameBoard.isPlayerBlackTurn());
 			if (!jumpingPos.isEmpty()) {
 
-				// check if current mouse click id has jumping move if it
-				// doesn't show an warning
+				// check if current mouse click id has jumping move if it does
+				// show a warning that they must jump
 				if (gameBoard.getPossibleMoves(id, true).isEmpty()) {
 					JOptionPane.showMessageDialog(gameView, "Must Jump Your Opponent", "Must Jump!", JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -92,23 +111,17 @@ public class GameBoardController {
 			}
 		}
 		if (!gameBoard.getMovesOnFocus().isEmpty()) {
-
 			for (int[] ID : gameBoard.getMovesOnFocus()) {
-
 				if (id[0] == ID[0] && id[1] == ID[1]) {
-					setProperDuration();
 					timer.setStart();
 					gameBoard.movePiece(gameBoard.getFocusedLocation(), ID);
-
-					// check if next if there are jumping moves
-					// if so set the timer duration to 1 min
-					// gameBoard.removeMovesOnFocus();
+					setProperDuration();
 					break;
 				}
 			}
 		}
 
-		// TODO: add logic to restart, etc...
+		// check if game is over
 		if (gameBoard.getBlackScore() == 12) {
 			popUpWin("Black!");
 		} else if (gameBoard.getRedScore() == 12) {
@@ -116,6 +129,13 @@ public class GameBoardController {
 		}
 	}
 
+	/**
+	 * Update method called in the main game thread, used for AI and other
+	 * application checks
+	 * 
+	 * @return void
+	 * 
+	 * */
 	public void update() {
 		if (!gameBoard.isGameOver()) {
 			if (gameBoard.getBlackScore() == 12) {
@@ -135,13 +155,10 @@ public class GameBoardController {
 			} else {
 				popUpWin("Black");
 			}
-			return;
-		}
-
-		if (timer.isTimerFinished()) {
+			this.lastStand = false;
+			timer.setRunning(false);
+		} else if (timer.isTimerFinished()) {
 			JOptionPane.showMessageDialog(gameView, "You have 1 min to make a move or you loose!", "Times Up!", JOptionPane.ERROR_MESSAGE);
-			// gameBoard.setPlayerBlackTurn(!gameBoard.getPlayerBlackTurn());
-			// setProperDuration();
 			timer.setDuration(1.0);
 			timer.setStart();
 			this.lastStand = true;
@@ -152,31 +169,19 @@ public class GameBoardController {
 			timerAI.setStart();
 			while (!timerAI.isTimerFinished())
 				;
+			// setProperDuration();
 			gameBoard.checkerAI();
-			setProperDuration();
 		}
-
-		// testing (+)
-
-		// (-)
 	}
 
-	/*
-	 * draws the side board which shows score/turnINPUTS:-Graphics Object to
-	 * draw to
-	 */
-	private void popUpWin(String whoWon) {
-		JOptionPane.showMessageDialog(gameView, "Congrats " + whoWon + " WINS! Go to the Options Pane to start a New Game!", "WIN!",
-				JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	private void setProperDuration() {
-		if (!gameBoard.getPositions(true, gameBoard.isPlayerBlackTurn()).isEmpty())
-			timer.setDuration(1);
-		else
-			timer.setDuration(5);
-	}
-
+	/**
+	 * Draws the side board
+	 * 
+	 * @param g
+	 *            Graphics object to draw too
+	 * 
+	 * @return void
+	 * */
 	private void drawSideBoard(Graphics g) {
 		g.drawImage(score_board, 480, 0, gameView);
 		g.drawImage(red_word, 480, 96, gameView);
@@ -189,6 +194,14 @@ public class GameBoardController {
 		}
 	}
 
+	/**
+	 * Draws the option pane
+	 * 
+	 * @param g
+	 *            Graphics object to draw too
+	 * 
+	 * @return void
+	 * */
 	private void drawSideOptionPane(Graphics g) {
 		Font titleFont = new Font("TimesRoman", Font.BOLD, 15);
 		Font subTitle = new Font("TimesRoman", Font.BOLD, 15);
@@ -222,7 +235,7 @@ public class GameBoardController {
 
 		g.drawString("Starting Player", 480 + 120, 45 + 15 + 40 + 40);
 
-		// diffuclty drop down
+		// Difficulty drop down
 		g.drawString("AI Difficulty", 480 + 120, 45 + 15 + 40 + 40 + 40);
 
 		// subtitle 2
@@ -255,11 +268,23 @@ public class GameBoardController {
 
 	}
 
-	/*
-	 * binds the current integer score to the correct imagesINPUTS:-integer
-	 * score-integer x -> x position of images-integer y -> y position of images
-	 * -Graphics Object to draw to
-	 */
+	/**
+	 * converts the integer score to an images
+	 * 
+	 * @param score
+	 *            integer of the score must be 12 or less
+	 * 
+	 * @param x
+	 *            integer of the x location to draw the image
+	 * 
+	 * @param y
+	 *            integer of the y location to draw the image
+	 * 
+	 * @param g
+	 *            Graphics object to draw too
+	 * 
+	 * @return void
+	 * */
 	private void scoreToImage(int score, int x, int y, Graphics g) {
 		switch (score) {
 		case 0:
@@ -307,10 +332,15 @@ public class GameBoardController {
 		}
 	}
 
-	/*
-	 * -main drawing method. Calls all the sub methods like drawside INPUT:
-	 * -Graphics object
-	 */
+	/**
+	 * Main drawing method. Calls all the smaller drawing sub-units
+	 * 
+	 * @param g
+	 *            Graphics object to draw too
+	 * 
+	 * @return void
+	 * 
+	 * */
 	public void drawGame(Graphics g) {
 		g.drawImage(board, 0, 0, gameView);
 
@@ -356,9 +386,14 @@ public class GameBoardController {
 		g.drawString(String.format("Clock %d s", timer.getTimeDifference()), 480 + 15, 480 / 2);
 	}
 
-	/*
-	 * Action listener for the menu bar INPUTS: -ActionEvent object
-	 */
+	/**
+	 * Action listener for the menu bar
+	 * 
+	 * @param e
+	 *            ActionEvent object
+	 * 
+	 * @return void
+	 * */
 	public void menuClick(ActionEvent e) {
 		switch (e.getActionCommand()) {
 		case "Save Game":
@@ -381,8 +416,12 @@ public class GameBoardController {
 		}
 	}
 
-	// writes the gameboard to a file
-	// Calls object FileWriter
+	/**
+	 * Saves the current game to a file
+	 * 
+	 * @return void
+	 * 
+	 * */
 	private void saveGame() throws FileNotFoundException {
 		JFileChooser fileChooser = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Text File", "txt");
@@ -403,8 +442,13 @@ public class GameBoardController {
 		}
 	}
 
-	// loads game from file
-	// calls myFileWriter
+	/**
+	 * Loads the game from a text file and parses the data. Creates a new
+	 * GameBoardModel object with the new loaded data
+	 * 
+	 * @return void
+	 * 
+	 * */
 	private void loadGame() {
 		JFileChooser fileChooser = new JFileChooser();
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("Text File", "txt");
@@ -430,7 +474,13 @@ public class GameBoardController {
 		}
 	}
 
-	// converts gameBoard to string arrayList
+	/**
+	 * Converts the current game state to an ArrayList of Strings to be written
+	 * to a file
+	 * 
+	 * @return ArrayList<String>
+	 * 
+	 * */
 	private ArrayList<String> convertToStringArrayList() {
 		ArrayList<String> strList = new ArrayList<String>();
 		StringBuilder strBuilder = new StringBuilder();
@@ -442,10 +492,6 @@ public class GameBoardController {
 			strBuilder.setLength(0);
 		}
 
-		/*
-		 * if (gameBoard.isPlayerBlackTurn()) { strList.add("t"); } else {
-		 * strList.add("f"); }
-		 */
 		strList.add(Boolean.toString(gameBoard.isPlayerBlackTurn()));
 
 		strList.add(Boolean.toString(gameBoard.isBlackComp()));
@@ -456,19 +502,12 @@ public class GameBoardController {
 		return strList;
 	}
 
-	// keeps track of whether the game is starting
-	// TODO: consider renaming so that it incorporates when you are finished the
-	// game as well. ei. isInNewGameProccess
-	public boolean isStartingUp() {
-		return isStartingUp;
-	}
-
-	public void setStartingUp(boolean isStartingUp) {
-		this.isStartingUp = isStartingUp;
-	}
-
-	public void newBlankBoard() {
-		// setStartingUp(false);
+	/**
+	 * This is extra feature which allows you to draw on the board
+	 * 
+	 * @return void
+	 * */
+	public void drawOnBoard() {
 		gameBoard = new GameBoardModel(false, false);
 		gameBoard.setmBoard(gameBoard.getBlankBoard());
 		gameBoard.setBlackScore(0);
@@ -476,8 +515,15 @@ public class GameBoardController {
 		JOptionPane.showMessageDialog(gameView, "Left Click for Red \n Right Click for Black", "DRAW!", JOptionPane.PLAIN_MESSAGE);
 	}
 
-	public void newDefaultGame(String p1, String p2, int startPlayer, int difficulty) {
-		setStartingUp(false);
+	/**
+	 * Creates a new checkers game.
+	 * 
+	 * @param p1
+	 *            String of player 1
+	 * 
+	 * @param p2
+	 * */
+	public void newDefaultGame(int p1, int p2, int startPlayer, int difficulty) {
 		int confirm = JOptionPane.showConfirmDialog(gameView, "Are you sure you would \n like to start a New Game?", "New Game Confirmation",
 				JOptionPane.YES_NO_OPTION);
 		if (confirm == 0) {
@@ -485,7 +531,7 @@ public class GameBoardController {
 			timer.setStart();
 			timer.setRunning(false);
 			// yes
-			gameBoard = new GameBoardModel(p2 == "Computer", p1 == "Computer");
+			gameBoard = new GameBoardModel(p2 == 1, p1 == 1);
 
 			switch (difficulty) {
 			case 0:
@@ -501,7 +547,7 @@ public class GameBoardController {
 				gameBoard.setTryLimit(5);
 				break;
 			}
-			
+
 			System.out.println("Difficuly (try limit): " + gameBoard.getTryLimit());
 
 			if (startPlayer == 0) {
@@ -519,8 +565,14 @@ public class GameBoardController {
 		}
 	}
 
-	// adds piece to the board when user selected board is chosen
-	// we should remove this but I like it :p
+	/**
+	 * Extra bit to draw pieces on board!
+	 * 
+	 * @param e
+	 *            MouseEvent object
+	 * 
+	 * @return void
+	 * */
 	public void putPeiceOnBoard(MouseEvent e) {
 		int id[] = gameBoard.coordinateToID(e.getX(), e.getY());
 
@@ -533,18 +585,43 @@ public class GameBoardController {
 		}
 	}
 
-	// updates the click count to keep track of pieces on the board
-	private void updateClickCount(int[] ID) {
-		if (gameBoard.getIdValue(ID) != 0) {
-			clickCounter += 1;
-		} // do nothing
-	}
-
+	/**
+	 * Starts timer if it is not running
+	 * 
+	 * @return void
+	 * */
 	public void startResumeAction() {
 		if (!timer.isRunning()) {
 			timer.setStart();
 		}
+	}
+	
 
+	/**
+	 * Displays a pop window that displays a win message
+	 * 
+	 * @param whoWon
+	 *            String of who one
+	 * 
+	 * @return void
+	 * */
+	private void popUpWin(String whoWon) {
+		JOptionPane.showMessageDialog(gameView, "Congrats " + whoWon + " WINS! Go to the Options Pane to start a New Game!", "WIN!",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Sets the proper timer duration based on if a jumping move can be made or
+	 * not
+	 * 
+	 * @return void
+	 * 
+	 * */
+	private void setProperDuration() {
+		if (!gameBoard.getPositions(true, gameBoard.isPlayerBlackTurn()).isEmpty())
+			timer.setDuration(1.0);
+		else
+			timer.setDuration(5.0);
 	}
 
 }

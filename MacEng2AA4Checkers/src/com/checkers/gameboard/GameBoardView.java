@@ -8,7 +8,6 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.MenuShortcut;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -20,100 +19,93 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+/**
+ * GameBoardView is the view of the checkers application. The GameBoardView is
+ * the view in the MVC software pattern implementation. This class contains the
+ * thread and all the graphic content of the application.
+ * 
+ * @author SONY
+ * @version 0.3
+ * @since 06-04-2014
+ * */
 @SuppressWarnings("serial")
 public class GameBoardView extends Applet implements Runnable, MouseListener, ActionListener {
 
 	private int fps = 10;
 	// calculates the time to sleep thread to achieve desired fps
 	private int threadSleepTime = (int) 1000 / fps;
-	private boolean running = false;
 	private Image image;
 	private Graphics second;
 	private JFrame frame;
 	private GameBoardController boardController;
-	private Point startLoc = new Point(250, 20);
 	private ArrayList<Choice> dropDownList = new ArrayList<Choice>();
 	private Choice p1, p2, first, difficulty;
 
+	/**
+	 * Default empty class constructor
+	 * 
+	 * */
+	public GameBoardView() {
+	}
 
-	// initializer
+	/**
+	 * Initializing method. Should be called after constructor
+	 * 
+	 * @return void
+	 * */
 	public void init() {
-		// window parameters
-		setSize(480 + 120 + 120, 480);
-		setFocusable(true);
-		addMouseListener(this);
 
-		running = true;
-
-		frame = new JFrame();
-		frame.setResizable(false);
-		frame.setLocation(startLoc);
-		frame.setTitle("Checkers - 2AA4");
-		frame.setMenuBar(setUpMenu());
-		
-		//move to method
-		Choice c;
-		// drop down 1 player1
-		p1 = new Choice();
-		p1.setLocation(480 + 120 + 15, 45 + 15 + 5);
-		p1.add("Human");
-		p1.add("Computer");
-		frame.add(p1);
-
-		// drop down 2 player2
-		p2 = new Choice();
-		p2.setLocation(480 + 120 + 15, 45 + 15 + 5 + 40);
-		p2.add("Human");
-		p2.add("Computer");
-		frame.add(p2);
-
-		// drop down 3 who wants to go first
-		first = new Choice();
-		first.setLocation(480 + 120 + 15, 45 + 15 + 40 + 40 + 5);
-		first.add("Player One");
-		first.add("Player Two");
-		first.add("Random");
-		frame.add(first);
-		
-		difficulty = new Choice();
-		difficulty.setLocation(480 + 120 + 15, 45 + 15 + 40 + 40 + 5 + 40);
-		difficulty.add("Easy");
-		difficulty.add("Medium");
-		difficulty.add("Hard");
-		difficulty.select(1);
-		frame.add(difficulty);
-		
-		
+		// create boardController object
 		try {
 			boardController = new GameBoardController(setUpImages());
 		} catch (IOException e) {
 			// image loading error
 			e.printStackTrace();
 		}
+
+		// window parameters
+		setSize(480 + 120 + 120, 480);
+		setFocusable(true);
+		addMouseListener(this);
+
+		frame = new JFrame();
+		frame.setResizable(false);
+		frame.setLocation(250, 20);
+		frame.setTitle("Checkers - 2AA4");
+		frame.setMenuBar(setUpMenu());
+		setUpChoiceMenu();
+
 	}
 
-	// gets frame
+	/**
+	 * Returns the frame of the application. Used in AppletContainer to allow
+	 * for a stand-alone application.
+	 * 
+	 * @return void
+	 * */
 	public JFrame getFrame() {
 		return this.frame;
 	}
 
-	// starts the thread in which the application runs on
+	/**
+	 * Creates thread in which the application runs when called
+	 * 
+	 * @return void
+	 * */
 	public void start() {
 		Thread thread = new Thread(this);
 		thread.start();
 	}
 
-	// stopping method
-	// should remove as it is not being using in current set up
-	public void stop() {
-		running = false;
-		System.exit(0);
-	}
-
-	// run method -> holds the game loop
+	/**
+	 * The applications run method which contains the game loop
+	 * 
+	 * @return void
+	 * 
+	 * */
 	public void run() {
 		// game loop
-		while (running) {
+		while (true) {
 			repaint();
 			boardController.update();
 			try {
@@ -125,7 +117,16 @@ public class GameBoardView extends Applet implements Runnable, MouseListener, Ac
 
 	}
 
-	// graphics updater ->contains double buffering system
+	/**
+	 * Updates the applications graphics using a double buffer system. This
+	 * eliminates frame drops and gitters
+	 * 
+	 * @param g
+	 *            Graphics object to draw too
+	 * 
+	 * @return void
+	 * 
+	 * */
 	public void update(Graphics g) {
 		// double buffering system
 		if (image == null) {
@@ -141,45 +142,55 @@ public class GameBoardView extends Applet implements Runnable, MouseListener, Ac
 		g.drawImage(image, 0, 0, this);
 	}
 
-	// main paint method -> calls controller draw method
+	/**
+	 * Main paint method for application. Invokes the GameBoardController
+	 * classes drawGame method to convert the game into a visual entity
+	 * 
+	 * @param g
+	 *            Graphics object to draw too
+	 * 
+	 * @return void
+	 * 
+	 * */
 	public void paint(Graphics g) {
 		boardController.drawGame(g);
 	}
 
-	// (+) mouse methods
+	/**
+	 * Over-ridden method MouseListener, it is called every time a mouse is
+	 * clicked on screen
+	 * 
+	 * @param e
+	 *            MouseEvent object
+	 * 
+	 * @void void
+	 * 
+	 * */
 	@Override
 	public void mouseClicked(MouseEvent e) {
 
-		//New Game Button
-		if (e.getX() > 605 && e.getX() < (605 + 125) && e.getY() > 230 && e.getY() < (230+20)) {
-			System.out.println("New Game");
-			System.out.println("p1: " + p1.getSelectedItem());
-			System.out.println("p2: " + p2.getSelectedItem());
-			boardController.newDefaultGame(p1.getSelectedItem(), p2.getSelectedItem(), first.getSelectedIndex(), difficulty.getSelectedIndex());
+		// New Game Button
+		if (e.getX() > 605 && e.getX() < (605 + 125) && e.getY() > 230 && e.getY() < (230 + 20)) {
+			boardController.newDefaultGame(p1.getSelectedIndex(), p2.getSelectedIndex(), first.getSelectedIndex(), difficulty.getSelectedIndex());
 		}
 
-		
-		//draw!
-		else if (e.getX() > 605 && e.getX() < (605 + 125) && e.getY() > (480-40) && e.getY() < (480-40+20)) {
-			System.out.println("Blank Board");
-			boardController.newBlankBoard();
-			boardController.setStartingUp(true);
+		// draw!
+		else if (e.getX() > 605 && e.getX() < (605 + 125) && e.getY() > (480 - 40) && e.getY() < (480 - 40 + 20)) {
+			boardController.drawOnBoard();
+			// boardController.setStartingUp(true);
 			return;
 		}
-		
-		else if (e.getX() > 605 && e.getX() < (605 + 125) && e.getY() > 255 && e.getY() < (255+20)) {
-			System.out.println("Start/Pause");
+
+		// start clock
+		else if (e.getX() > 605 && e.getX() < (605 + 125) && e.getY() > 255 && e.getY() < (255 + 20)) {
 			boardController.startResumeAction();
 		}
-		
 
-		if (boardController.isStartingUp())
-			boardController.putPeiceOnBoard(e);
-		else
-			boardController.movePeice(e);
+		boardController.movePeice(e);
 
 	}
 
+	// (+) **UNUSED METHODS**
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		boardController.menuClick(e);
@@ -209,11 +220,17 @@ public class GameBoardView extends Applet implements Runnable, MouseListener, Ac
 
 	}
 
-	// (-) end of mouse methods
+	// (-) **UNUSED METHODS**
 
-	// image loader
-	// move this to controller, it is now useless here since
-	// it is now using ImageIO.read()
+	/**
+	 * The Applications image loader. Its loads the images and puts them into
+	 * and ArrayList
+	 * 
+	 * @exception IOException
+	 * 
+	 * @return ArrayList<Image>
+	 * 
+	 * */
 	private ArrayList<Image> setUpImages() throws IOException {
 		ArrayList<Image> imageList = new ArrayList<Image>();
 		imageList.add(ImageIO.read(getClass().getResource("/data/Checker_Red.png")));
@@ -241,7 +258,11 @@ public class GameBoardView extends Applet implements Runnable, MouseListener, Ac
 		return imageList;
 	}
 
-	// initializes menu bar (save,load,new...)
+	/**
+	 * Sets up the menu bar. This is where the save and load menu is created.
+	 * 
+	 * @return MenuBar
+	 * */
 	private MenuBar setUpMenu() {
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("Settings");
@@ -262,24 +283,45 @@ public class GameBoardView extends Applet implements Runnable, MouseListener, Ac
 		menuItem.addActionListener(this);
 		menu.add(menuItem);
 
-		// add menu item 3
-//		menuItem = new MenuItem("New Game");
-//		menuItem.setShortcut(new MenuShortcut(KeyEvent.VK_N));
-//		menuItem.addActionListener(this);
-//		menu.add(menuItem);
 		return menuBar;
 	}
 
-	// returns the starting window position on screen
-	// currently not used
-	// (+)
-	public Point getStartLoc() {
-		return startLoc;
-	}
+	/**
+	 * Sets up the Choice (drop-down) menus and adds them to the frame
+	 * 
+	 * @return void
+	 * 
+	 * */
+	private void setUpChoiceMenu() {
+		// drop down 1 player1
+		p1 = new Choice();
+		p1.setLocation(480 + 120 + 15, 45 + 15 + 5);
+		p1.add("Human");
+		p1.add("Computer");
+		frame.add(p1);
 
-	public void setStartLoc(Point startLoc) {
-		this.startLoc = startLoc;
+		// drop down 2 player2
+		p2 = new Choice();
+		p2.setLocation(480 + 120 + 15, 45 + 15 + 5 + 40);
+		p2.add("Human");
+		p2.add("Computer");
+		frame.add(p2);
+
+		// drop down 3 who wants to go first
+		first = new Choice();
+		first.setLocation(480 + 120 + 15, 45 + 15 + 40 + 40 + 5);
+		first.add("Player One");
+		first.add("Player Two");
+		first.add("Random");
+		frame.add(first);
+
+		difficulty = new Choice();
+		difficulty.setLocation(480 + 120 + 15, 45 + 15 + 40 + 40 + 5 + 40);
+		difficulty.add("Easy");
+		difficulty.add("Medium");
+		difficulty.add("Hard");
+		difficulty.select(1);
+		frame.add(difficulty);
 	}
-	// (-)
 
 }

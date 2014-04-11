@@ -5,12 +5,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/*
- * This class reads any file. It reads the file using input stream and will
- * work no matter the file location. This was necessary for the compiled jar executable
- * to open the files correctly
- * Inputs:
- * -->File inFile -> for conformity it's a file object could be string
+/**
+ * myFileReader is a file reading class that should be capable of reading any ASCII
+ * file format and storing the data to an ArrayList of strings.
+ * 
+ * @author SONY
+ * @version 0.3
+ * @since 06-04-2014
+ * 
  * */
 public class myFileReader {
 	private File templateFile;

@@ -4,15 +4,15 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-/*
- * This class writes a file
+/**
+ * FileWriter is a file writing class that takes an ArrayList of strings and
+ * writes the contents of the list to a specified file
  * 
- * Inputs:
- * --> ArrayList<String> of strings as lines to be written from start of list to end (top to bottom)
- * --> File ->full file location, directory and name + extension
+ * @author SONY
+ * @version 0.3
+ * @since 06-04-2014
  * 
  * */
-
 public class FileWriter {
 	private ArrayList<String> fileContent;
 	private File file;
