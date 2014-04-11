@@ -38,6 +38,10 @@ public class FileWriter {
 		PrintWriter printWriter = new PrintWriter(getFile());
 		for (int i = 0; i < fileContent.size(); i++) {
 			printWriter.write(fileContent.get(i));
+			System.out.println(i);
+			if (i == fileContent.size() -1){
+				continue;
+			}
 			printWriter.write("\n");
 		}
 		printWriter.close();

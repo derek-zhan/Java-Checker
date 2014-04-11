@@ -16,9 +16,10 @@ public class AppletContainer {
 		GameBoardView gbv = new GameBoardView();
 				
 		gbv.init();
+		
 		JFrame frame = gbv.getFrame();
 		frame.add(gbv,BorderLayout.CENTER);
-		frame.setSize(480+120+5, 480+50);
+		frame.setSize(480+120+5 +140, 480+50);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gbv.start();
